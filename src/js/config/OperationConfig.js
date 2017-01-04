@@ -1,8 +1,8 @@
 /*
- * Tell JSHint to ignore "'Object' is not defined" errors in this file, as it references every
+ * Tell eslint to ignore "'Object' is not defined" errors in this file, as it references every
  * single operation object by definition.
  */
-/* jshint -W117 */
+/* eslint no-undef: "off" */
 
 
 /**
@@ -209,7 +209,7 @@ var OperationConfig = {
         ]
     },
     "XOR": {
-        description: "XOR the input with the given key.<br>e.g. <code>fe023da5</code><br><br><strong>Options</strong><br><u>Null preserving:</u> If the current byte is 0x00 or the same as the key, skip it.<br><br><u>Differential:</u> Set the key to the value of the previously decoded byte.",
+        description: "XOR the input with the given key.<br>e.g. <code>fe023da5</code><br><br><strong>Options</strong><br><u>Null preserving:</u> If the current byte is 0x00 or the same as the key, skip it.<br><br><u>Scheme:</u><ul><li>Standard - key is unchanged after each round</li><li>Input differential - key is set to the value of the previous unprocessed byte</li><li>Output differential - key is set to the value of the previous processed byte</li></ul>",
         run: BitwiseOp.run_xor,
         highlight: true,
         highlight_reverse: true,
@@ -223,14 +223,14 @@ var OperationConfig = {
                 toggle_values: BitwiseOp.KEY_FORMAT
             },
             {
+                name: "Scheme",
+                type: "option",
+                value: BitwiseOp.XOR_SCHEME
+            },
+            {
                 name: "Null preserving",
                 type: "boolean",
                 value: BitwiseOp.XOR_PRESERVE_NULLS
-            },
-            {
-                name: "Differential",
-                type: "boolean",
-                value: BitwiseOp.XOR_DIFFERENTIAL
             }
         ]
     },
@@ -1325,6 +1325,36 @@ var OperationConfig = {
             },
         ]
     },
+    "Vigenère Encode": {
+        description: "The Vigenere cipher is a method of encrypting alphabetic text by using a series of different Caesar ciphers based on the letters of a keyword. It is a simple form of polyalphabetic substitution.",
+        run: Cipher.run_vigenere_enc,
+        highlight: true,
+        highlight_reverse: true,
+        input_type: "string",
+        output_type: "string",
+        args: [
+            {
+                name: "Key",
+                type: "string",
+                value: ""
+            }
+        ]
+    },
+    "Vigenère Decode": {
+        description: "The Vigenere cipher is a method of encrypting alphabetic text by using a series of different Caesar ciphers based on the letters of a keyword. It is a simple form of polyalphabetic substitution.",
+        run: Cipher.run_vigenere_dec,
+        highlight: true,
+        highlight_reverse: true,
+        input_type: "string",
+        output_type: "string",
+        args: [
+            {
+                name: "Key",
+                type: "string",
+                value: ""
+            }
+        ]
+    },
     "Rotate right": {
         description: "Rotates each byte to the right by the number of bits specified. Currently only supports 8-bit values.",
         run: Rotate.run_rotr,
@@ -1387,6 +1417,21 @@ var OperationConfig = {
                 name: "Amount",
                 type: "number",
                 value: Rotate.ROT13_AMOUNT
+            },
+        ]
+    },
+    "ROT47": {
+        description: "A slightly more complex variation of a caesar cipher, which includes ASCII characters from 33 '!' to 126 '~'. Default rotation: 47.",
+        run: Rotate.run_rot47,
+        highlight: true,
+        highlight_reverse: true,
+        input_type: "byte_array",
+        output_type: "byte_array",
+        args: [
+            {
+                name: "Amount",
+                type: "number",
+                value: Rotate.ROT47_AMOUNT
             },
         ]
     },
@@ -1719,6 +1764,30 @@ var OperationConfig = {
             }
         ]
     },
+    "Filter": {
+        description: "Splits up the input using the specified delimiter and then filters each branch based on a regular expression.",
+        run: StrUtils.run_filter,
+        manual_bake: true,
+        input_type: "string",
+        output_type: "string",
+        args: [
+            {
+                name: "Delimiter",
+                type: "option",
+                value: StrUtils.DELIMITER_OPTIONS
+            },
+            {
+                name: "Regex",
+                type: "string",
+                value: ""
+            },
+            {
+                name: "Invert condition",
+                type: "boolean",
+                value: SeqUtils.SORT_REVERSE
+            },
+        ]
+    },
     "Strings": {
         description: "Extracts all strings from the input.",
         run: Extract.run_strings,
@@ -1890,6 +1959,42 @@ var OperationConfig = {
                 name: "Output format",
                 type: "option",
                 value: StrUtils.OUTPUT_FORMAT
+            },
+        ]
+    },
+    "XPath expression": {
+        description: "Extract information from an XML document with an XPath query",
+        run: Code.run_xpath,
+        input_type: "string",
+        output_type: "string",
+        args: [
+            {
+                name: "XPath",
+                type: "string",
+                value: Code.XPATH_INITIAL
+            },
+            {
+                name: "Result delimiter",
+                type: "binary_short_string",
+                value: Code.XPATH_DELIMITER
+            }
+        ]
+    },
+    "CSS selector": {
+        description: "Extract information from an HTML document with a CSS selector",
+        run: Code.run_css_query,
+        input_type: "string",
+        output_type: "string",
+        args: [
+            {
+                name: "CSS selector",
+                type: "string",
+                value: Code.CSS_SELECTOR_INITIAL
+            },
+            {
+                name: "Delimiter",
+                type: "binary_short_string",
+                value: Code.CSS_QUERY_DELIMITER
             },
         ]
     },
@@ -2782,5 +2887,23 @@ var OperationConfig = {
         input_type: "string",
         output_type: "string",
         args: []
+    },
+    "Substitute": {
+        description: "A substitution cipher allowing you to specify bytes to replace with other byte values. This can be used to create Caesar ciphers but is more powerful as any byte value can be substituted, not just letters, and the substitution values need not be in order.<br><br>Enter the bytes you want to replace in the Plaintext field and the bytes to replace them with in the Ciphertext field.<br><br>Non-printable bytes can be specified using string escape notation. For example, a line feed character can be written as either <code>\\n</code> or <code>\\x0a</code>.<br><br>Byte ranges can be specified using a hyphen. For example, the sequence <code>0123456789</code> can be written as <code>0-9</code>.",
+        run: Cipher.run_substitute,
+        input_type: "byte_array",
+        output_type: "byte_array",
+        args: [
+            {
+                name: "Plaintext",
+                type: "binary_string",
+                value: Cipher.SUBS_PLAINTEXT
+            },
+            {
+                name: "Ciphertext",
+                type: "binary_string",
+                value: Cipher.SUBS_CIPHERTEXT
+            }
+        ]
     }
 };

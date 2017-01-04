@@ -64,13 +64,13 @@ var URL_ = {
         
         if (a.protocol) {
             var output = "";
-            if (a.hostname != window.location.hostname) {
+            if (a.hostname !== window.location.hostname) {
                 output = "Protocol:\t" + a.protocol + "\n";
                 if (a.hostname) output += "Hostname:\t" + a.hostname + "\n";
                 if (a.port) output += "Port:\t\t" + a.port + "\n";
             }
             
-            if (a.pathname) {
+            if (a.pathname && a.pathname !== window.location.pathname) {
                 var pathname = a.pathname;
                 if (pathname.indexOf(window.location.pathname) === 0)
                     pathname = pathname.replace(window.location.pathname, "");
@@ -78,11 +78,11 @@ var URL_ = {
                     output += "Path name:\t" + pathname + "\n";
             }
             
-            if (a.hash) {
+            if (a.hash && a.hash !== window.location.hash) {
                 output += "Hash:\t\t" + a.hash + "\n";
             }
             
-            if (a.search) {
+            if (a.search && a.search !== window.location.search) {
                 output += "Arguments:\n";
                 var args_ = (a.search.slice(1, a.search.length)).split("&");
                 var split_args = [], padding = 0;

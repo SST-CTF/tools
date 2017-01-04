@@ -77,8 +77,12 @@ var Categories = [
             "RC4",
             "RC4 Drop",
             "ROT13",
+            "ROT47",
             "XOR",
             "XOR Brute Force",
+            "Vigenère Encode",
+            "Vigenère Decode",
+            "Substitute",
             "Derive PBKDF2 key",
             "Derive EVP key",
         ]
@@ -145,6 +149,7 @@ var Categories = [
             "Sort",
             "Unique",
             "Split",
+            "Filter",
             "Count occurrences",
             "Expand alphabet range",
             "Parse escaped string",
@@ -186,6 +191,8 @@ var Categories = [
             "Extract file paths",
             "Extract dates",
             "Regular expression",
+            "XPath expression",
+            "CSS selector",
         ]
     },
     {
@@ -238,6 +245,8 @@ var Categories = [
             "SQL Minify",
             "CSS Beautify",
             "CSS Minify",
+            "XPath expression",
+            "CSS selector",
             "Strip HTML tags",
             "Diff",
         ]
